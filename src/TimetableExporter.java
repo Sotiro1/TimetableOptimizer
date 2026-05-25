@@ -1,99 +1,126 @@
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.*;
-
-import java.io.FileOutputStream;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
+/**
+ * Exports a Timetable to a CSV file.
+ *
+ * <p>No external libraries required — uses only the Java standard library.
+ *
+ * <p>Output columns:
+ * Topic Code, Topic Name, Attendance Mode, Campus, Semester, Availability Number,
+ * Class Format, Instance Number, First Class Date, Last Class Date,
+ * Day of Week, Start Time, End Time, Building, Room
+ */
 public class TimetableExporter {
 
+    private static final String HEADER =
+            "Topic Code,Topic Name,Attendance Mode,Campus,Semester,Availability Number," +
+                    "Class Format,Instance Number,First Class Date,Last Class Date," +
+                    "Day of Week,Start Time,End Time,Building,Room";
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("d/MM/yyyy");
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("H:mm");
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
+
+    /**
+     * Exports the given timetable to a CSV file.
+     * If the file path does not end in .csv, the extension is appended automatically.
+     *
+     * @param timetable the timetable to export
+     * @param filePath  destination file path
+     */
     public void export(Timetable timetable, String filePath) {
-        if (!filePath.endsWith(".xlsx")) {
-            filePath += ".xlsx";
+        if (timetable == null) {
+            System.err.println("[TimetableExporter] Cannot export a null timetable.");
+            return;
+        }
+        if (filePath == null || filePath.isBlank()) {
+            System.err.println("[TimetableExporter] File path must not be empty.");
+            return;
         }
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook();
-             FileOutputStream fos = new FileOutputStream(filePath)) {
+        // Normalise extension
+        if (!filePath.toLowerCase().endsWith(".csv")) {
+            filePath += ".csv";
+        }
 
-            XSSFSheet sheet = workbook.createSheet("Timetable");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
 
-            // --- Header style ---
-            XSSFCellStyle headerStyle = workbook.createCellStyle();
-            headerStyle.setFillForegroundColor(new XSSFColor(new byte[]{(byte)33, (byte)84, (byte)157}, null)); // dark blue
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            headerStyle.setAlignment(HorizontalAlignment.CENTER);
-            headerStyle.setBorderBottom(BorderStyle.MEDIUM);
-            XSSFFont headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setColor(IndexedColors.WHITE.getIndex());
-            headerFont.setFontHeightInPoints((short) 11);
-            headerFont.setFontName("Arial");
-            headerStyle.setFont(headerFont);
+            writer.write(HEADER);
+            writer.newLine();
 
-            // --- Alternating row styles ---
-            XSSFCellStyle rowStyle1 = workbook.createCellStyle();
-            rowStyle1.setFillForegroundColor(new XSSFColor(new byte[]{(byte)235, (byte)241, (byte)255}, null));
-            rowStyle1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            rowStyle1.setAlignment(HorizontalAlignment.CENTER);
-            XSSFFont rowFont = workbook.createFont();
-            rowFont.setFontName("Arial");
-            rowFont.setFontHeightInPoints((short) 10);
-            rowStyle1.setFont(rowFont);
-
-            XSSFCellStyle rowStyle2 = workbook.createCellStyle();
-            rowStyle2.setFillForegroundColor(new XSSFColor(new byte[]{(byte)255, (byte)255, (byte)255}, null));
-            rowStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            rowStyle2.setAlignment(HorizontalAlignment.CENTER);
-            rowStyle2.setFont(rowFont);
-
-            // --- Headers ---
-            String[] headers = {"Topic Code", "Topic Name", "Day of Week", "Start Time", "End Time", "Building", "Room", "Campus", "Class Format"};
-            Row headerRow = sheet.createRow(0);
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
+            if (timetable.getClassInstances() == null
+                    || timetable.getClassInstances().isEmpty()) {
+                System.out.println("[TimetableExporter] Timetable '"
+                        + timetable.getName()
+                        + "' has no class instances. Empty file written to: " + filePath);
+                return;
             }
 
-            // --- Data rows ---
-            List<ClassInstance> instances = timetable.getClassInstances();
-            int rowNum = 1;
-            for (ClassInstance ci : instances) {
+            int rows = 0;
+
+            for (ClassInstance ci : timetable.getClassInstances()) {
+                if (ci.getSessions() == null || ci.getSessions().isEmpty()) continue;
+
                 for (Session session : ci.getSessions()) {
-                    Row row = sheet.createRow(rowNum);
-                    XSSFCellStyle style = (rowNum % 2 == 0) ? rowStyle2 : rowStyle1;
-
-                    String[] values = {
-                            ci.getTopicCode() != null ? ci.getTopicCode() : "",
-                            ci.getTopicName() != null ? ci.getTopicName() : "",
-                            session.getDayOfWeek(),
-                            session.getStartTime() != null ? session.getStartTime().toString() : "",
-                            session.getEndTime()   != null ? session.getEndTime().toString()   : "",
-                            session.getBuilding(),
-                            session.getRoom(),
-                            ci.getCampus(),
-                            ci.getClassFormat()
-                    };
-
-                    for (int i = 0; i < values.length; i++) {
-                        Cell cell = row.createCell(i);
-                        cell.setCellValue(values[i]);
-                        cell.setCellStyle(style);
-                    }
-                    rowNum++;
+                    writer.write(buildRow(ci, session));
+                    writer.newLine();
+                    rows++;
                 }
             }
 
-            // --- Auto-size columns ---
-            for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            workbook.write(fos);
-            System.out.println("[TimetableExporter] Timetable '" + timetable.getName() + "' exported successfully to: " + filePath);
+            System.out.println("[TimetableExporter] Timetable '" + timetable.getName()
+                    + "' exported to: " + filePath
+                    + " (" + rows + " row(s) written).");
 
         } catch (IOException e) {
-            System.out.println("[TimetableExporter] ERROR -- failed to export timetable: " + e.getMessage());
+            System.err.println("[TimetableExporter] Failed to write file '"
+                    + filePath + "': " + e.getMessage());
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private String buildRow(ClassInstance ci, Session session) {
+        return String.join(",",
+                escape(safe(ci.getTopicCode())),
+                escape(safe(ci.getTopicName())),
+                escape(safe(ci.getAttendanceMode())),
+                escape(safe(ci.getCampus())),
+                escape(safe(ci.getSemester())),
+                escape(String.valueOf(ci.getAvailabilityNumber())),
+                escape(safe(ci.getClassFormat())),
+                escape(String.valueOf(ci.getInstanceNumber())),
+                escape(session.getFirstClassDate() != null
+                        ? session.getFirstClassDate().format(DATE_FMT) : ""),
+                escape(session.getLastClassDate() != null
+                        ? session.getLastClassDate().format(DATE_FMT) : ""),
+                escape(safe(session.getDayOfWeek())),
+                escape(session.getStartTime() != null
+                        ? session.getStartTime().format(TIME_FMT) : ""),
+                escape(session.getEndTime() != null
+                        ? session.getEndTime().format(TIME_FMT) : ""),
+                escape(safe(session.getBuilding())),
+                escape(safe(session.getRoom()))
+        );
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String escape(String value) {
+        if (value == null) return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 }
