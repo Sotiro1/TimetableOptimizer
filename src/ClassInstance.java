@@ -7,12 +7,13 @@ import java.util.List;
  */
 public class ClassInstance {
 
-    private String topicCode;         // the topic this instance belongs to
-    private String topicName;         // human-readable topic name (denormalised for export)
-    private String attendanceMode;    // e.g. "On Campus", "Online"
-    private String campus;            // e.g. "Bedford Park", "City"
+    private String topicCode;
+    private String topicName;
+    private Topic topic;
+    private String attendanceMode;
+    private String campus;
     private String semester;
-    private int availabilityNumber;   // enrolment availability slot
+    private int availabilityNumber;
     private String classFormat;       // e.g. "Lecture", "Tutorial", "Practical"
     private int instanceNumber;       // distinguishes multiple instances of the same format
 
@@ -55,6 +56,15 @@ public class ClassInstance {
 
     public String getSemester() { return semester; }
     public void setSemester(String semester) { this.semester = semester; }
+
+    public Topic getTopic() { return topic; }
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+        if (topic != null) {
+            this.topicCode = topic.getTopicCode();
+            this.topicName = topic.getTopicName();
+        }
+    }
 
     public int getAvailabilityNumber() { return availabilityNumber; }
     public void setAvailabilityNumber(int availabilityNumber) { this.availabilityNumber = availabilityNumber; }
