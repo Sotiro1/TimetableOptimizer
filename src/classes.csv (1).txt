@@ -1,0 +1,15 @@
+Topic Code,Topic Name,Attendance Mode,Campus,Semester,Availability Number,Class Format,Instance Number,First Class Date,Last Class Date,Day of Week,Start Time,End Time,Building,Room
+COMP1234,Introduction to Programming,In Person,Bedford Park,1,1,Lecture,1,01/03/2025,01/06/2025,Monday,09:00,11:00,Engineering North,EN102
+COMP1234,Introduction to Programming,In Person,Bedford Park,1,1,Tutorial,2,01/03/2025,01/06/2025,Wednesday,13:00,14:00,Engineering North,EN105
+COMP2345,Data Structures,In Person,Bedford Park,1,1,Lecture,1,01/03/2025,01/06/2025,Tuesday,10:00,12:00,Social Sciences North,SSN201
+COMP2345,Data Structures,In Person,Bedford Park,1,1,Tutorial,2,01/03/2025,01/06/2025,Thursday,14:00,15:00,Social Sciences North,SSN203
+COMP3456,Software Engineering,In Person,Bedford Park,1,1,Lecture,1,01/03/2025,01/06/2025,Monday,13:00,15:00,Engineering South,ES301
+COMP3456,Software Engineering,In Person,Bedford Park,1,1,Practical,2,01/03/2025,01/06/2025,Friday,09:00,11:00,Engineering South,ES305
+MATH1234,Calculus,In Person,City West,1,1,Lecture,1,01/03/2025,01/06/2025,Tuesday,08:00,10:00,City West Campus,CW101
+MATH1234,Calculus,In Person,City West,1,1,Tutorial,2,01/03/2025,01/06/2025,Thursday,12:00,13:00,City West Campus,CW103
+ENGR2345,Systems Thinking,In Person,Tonsley,1,1,Lecture,1,01/03/2025,01/06/2025,Wednesday,10:00,12:00,Tonsley Campus,TP201
+ENGR2345,Systems Thinking,In Person,Tonsley,1,1,Workshop,2,01/03/2025,01/06/2025,Friday,13:00,15:00,Tonsley Campus,TP205
+COMP4567,Artificial Intelligence,In Person,Bedford Park,1,1,Lecture,1,01/03/2025,01/06/2025,Monday,15:00,17:00,Engineering North,EN201
+COMP4567,Artificial Intelligence,In Person,Bedford Park,1,1,Tutorial,2,01/03/2025,01/06/2025,Wednesday,09:00,10:00,Engineering North,EN204
+COMP4567,Artificial Intelligence,In Person,City West,1,2,Lecture,3,01/03/2025,01/06/2025,Tuesday,13:00,15:00,City West Campus,CW205
+COMP4567,Artificial Intelligence,In Person,City West,1,2,Tutorial,4,01/03/2025,01/06/2025,Thursday,10:00,11:00,City West Campus,CW207
