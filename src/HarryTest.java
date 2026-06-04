@@ -10,14 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.DisplayName.class)
-class TimeTableTest {
+class HarryTest {
 
     private final InputStream originalSystemIn = System.in;
 
     @Test
     @DisplayName("2.02 Testing timetable update")
     @Tag("CART0404")
-    @Tag("2.02 Core")
+    @Tag("Core")
     void testTimeTableUpdate() throws IOException {
 
         File classes = new File("test_classes.csv");
@@ -37,14 +37,10 @@ class TimeTableTest {
         assertEquals(1, classInstanceList.size(), "Identical class with a different time/date should overwrite previous instance.");
     }
 
-    void writeToConsole() {
-
-    }
-
     @Test
     @DisplayName("3.03 Search Criteria Results")
     @Tag("CART0404")
-    @Tag("3.03 Additional")
+    @Tag("Additional")
     void searchCriteriaTest() throws IOException {
 
         PrintStream originalOut = System.out;
@@ -72,7 +68,7 @@ class TimeTableTest {
     @Test
     @DisplayName("4.02 Zero topic time table")
     @Tag("CART0404")
-    @Tag("4.02 Critical")
+    @Tag("Critical")
     void zeroTopicTest() throws IOException {
 
         PrintStream originalOut = System.out;
@@ -101,7 +97,7 @@ class TimeTableTest {
     @Test
     @DisplayName("4.07 Customization Test")
     @Tag("CART0404")
-    @Tag("4.07 Additional")
+    @Tag("Additional")
     void CustomizationTest() throws IOException {
 
         PrintStream originalOut = System.out;
